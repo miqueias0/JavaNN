@@ -1,9 +1,23 @@
 package br.com.mike.util;
 
+import br.com.mike.enuns.Axis;
+
 public abstract class Math {
 
     public static double sqrt(double x) {
         return java.lang.Math.sqrt(x);
+    }
+
+    public static float tanh(float x) {
+        return (float) java.lang.Math.tanh(x);
+    }
+
+    public static float log(float x) {
+        return (float) java.lang.Math.log(x);
+    }
+
+    public static float max(float x, float y) {
+        return java.lang.Math.max(x, y);
     }
 
     public static int[][] dot(int[][] x, int[][] y) {
@@ -30,8 +44,8 @@ public abstract class Math {
         return MathMatriz.sum(x, y);
     }
 
-    public static float tanh(float x) {
-        return (float) java.lang.Math.tanh(x);
+    public static float[][] sum(float[][] x, Axis axis) {
+        return MathMatriz.sum(x, axis);
     }
 
     public static int[][] exp(int[][] x) {
@@ -46,15 +60,19 @@ public abstract class Math {
         return MathMatriz.exp(x);
     }
 
-    public static int[][] dividir(int[][] x, int divisor) {
+    public static int[][] dividir(int[][] x, int[][] divisor) {
         return MathMatriz.dividir(x, divisor);
     }
 
-    public static float[][] dividir(float[][] x, float divisor) {
+    public static float[][] dividir(float[][] x, float[][] divisor) {
         return MathMatriz.dividir(x, divisor);
     }
 
-    public static double[][] dividir(double[][] x, double divisor) {
+    public static double[][] dividir(double[][] x, double[][] divisor) {
         return MathMatriz.dividir(x, divisor);
+    }
+
+    public static float[][] transposta(float[][] x) {
+        return MathMatriz.transposta(x);
     }
 }

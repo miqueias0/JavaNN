@@ -1,5 +1,7 @@
 package br.com.mike.util;
 
+import br.com.mike.enuns.Axis;
+
 import java.lang.Math;
 
 abstract class MathMatriz {
@@ -12,7 +14,11 @@ abstract class MathMatriz {
         int[][] res = new int[x.length][y[0].length];
         for (int i = 0; i < x.length; i++) {
             for (int j = 0; j < y[0].length; j++) {
-                res[i][j] = x[i][j] * y[i][j];
+                int sum = 0;
+                for (int k = 0; k < y.length; k++) {
+                    sum += x[i][k] * y[k][j];
+                }
+                res[i][j] = sum;
             }
         }
         return res;
@@ -25,10 +31,10 @@ abstract class MathMatriz {
         verificarDimensoes(x[0].length, y.length);
         float[][] res = new float[x.length][y[0].length];
         for (int i = 0; i < x.length; i++) {
-            for (int j = i; j < x[0].length; j++) {
+            for (int j = 0; j < y[0].length; j++) {
                 float sum = 0;
                 for (int k = 0; k < y.length; k++) {
-                    sum += x[j][k] * y[k][j];
+                    sum += x[i][k] * y[k][j];
                 }
                 res[i][j] = sum;
             }
@@ -45,7 +51,11 @@ abstract class MathMatriz {
         double[][] res = new double[x.length][y[0].length];
         for (int i = 0; i < x.length; i++) {
             for (int j = 0; j < y[0].length; j++) {
-                res[i][j] = x[i][j] * y[i][j];
+                double sum = 0;
+                for (int k = 0; k < y.length; k++) {
+                    sum += x[i][k] * y[k][j];
+                }
+                res[i][j] = sum;
             }
         }
         return res;
@@ -78,6 +88,25 @@ abstract class MathMatriz {
         for (int i = 0; i < x.length; i++) {
             for (int j = 0; j < x[0].length; j++) {
                 res[i][j] = x[i][j] + y[i][j];
+            }
+        }
+        return res;
+    }
+
+    public static float[][] sum(float[][] x, Axis axis) {
+        if (x == null || x.length == 0 || x[0].length == 0) {
+            throw new java.lang.IllegalArgumentException("Dados de matrizes Inválidos");
+        }
+        float[][] res = switch (axis) {
+            case COL -> new float[x.length][1];
+            case LIN -> new float[1][x[0].length];
+        };
+        for (int i = 0; i < x.length; i++) {
+            for (int j = 0; j < x[0].length; j++) {
+                switch (axis) {
+                    case COL -> res[i][0] += x[i][j];
+                    case LIN -> res[0][j] += x[i][j];
+                }
             }
         }
         return res;
@@ -139,20 +168,20 @@ abstract class MathMatriz {
         return res;
     }
 
-    public static int[][] dividir(int[][] x, int divisor) {
+    public static int[][] dividir(int[][] x, int[][] divisor) {
         if (x == null) {
             throw new java.lang.IllegalArgumentException("Dados de matrizes Inválidos");
         }
         int[][] res = new int[x.length][x[0].length];
         for (int i = 0; i < x.length; i++) {
             for (int j = 0; j < x[0].length; j++) {
-                res[i][j] = x[i][j] / divisor;
+                res[i][j] = x[i][j] / divisor[i][0];
             }
         }
         return res;
     }
 
-    public static float[][] dividir(float[][] x, float divisor) {
+    public static float[][] dividir(float[][] x, float[][] divisor) {
         if (x == null) {
             throw new java.lang.IllegalArgumentException("Dados de matrizes Inválidos");
         }
@@ -160,20 +189,33 @@ abstract class MathMatriz {
         float[][] res = new float[x.length][x[0].length];
         for (int i = 0; i < x.length; i++) {
             for (int j = 0; j < x[0].length; j++) {
-                res[i][j] = x[i][j] / divisor;
+                res[i][j] = x[i][j] / divisor[i][0];
             }
         }
         return res;
     }
 
-    public static double[][] dividir(double[][] x, double divisor) {
+    public static double[][] dividir(double[][] x, double[][] divisor) {
         if (x == null) {
             throw new java.lang.IllegalArgumentException("Dados de matrizes Inválidos");
         }
         double[][] res = new double[x.length][x[0].length];
         for (int i = 0; i < x.length; i++) {
             for (int j = 0; j < x[0].length; j++) {
-                res[i][j] = x[i][j] / divisor;
+                res[i][j] = x[i][j] / divisor[i][0];
+            }
+        }
+        return res;
+    }
+
+    public static float[][] transposta(float[][] x) {
+        if (x == null) {
+            throw new java.lang.IllegalArgumentException("Dados de matrizes Inválidos");
+        }
+        float[][] res = new float[x[0].length][x.length];
+        for (int i = 0; i < x.length; i++) {
+            for (int j = 0; j < x[0].length; j++) {
+                res[j][i] = x[i][j];
             }
         }
         return res;
