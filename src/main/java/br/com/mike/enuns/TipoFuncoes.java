@@ -4,4 +4,5 @@ public enum TipoFuncoes {
     RELU,
     TANH,
     SOFTMAX,
+    EXP,
 }

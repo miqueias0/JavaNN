@@ -8,16 +8,28 @@ public abstract class Math {
         return java.lang.Math.sqrt(x);
     }
 
-    public static float tanh(float x) {
-        return (float) java.lang.Math.tanh(x);
+    public static double tanh(double x) {
+        return (double) java.lang.Math.tanh(x);
     }
 
-    public static float log(float x) {
-        return (float) java.lang.Math.log(x);
+    public static double log(double x) {
+        return (double) java.lang.Math.log(x);
     }
 
-    public static float max(float x, float y) {
+    public static double max(double x, double y) {
         return java.lang.Math.max(x, y);
+    }
+
+    public static double min(double x, double y) {
+        return java.lang.Math.min(x, y);
+    }
+
+    public static double exp(double x) {
+        return (double) java.lang.Math.exp(x);
+    }
+
+    public static double pow(double x, double y) {
+        return (double) java.lang.Math.pow(x, y);
     }
 
     public static int[][] dot(int[][] x, int[][] y) {
@@ -44,7 +56,7 @@ public abstract class Math {
         return MathMatriz.sum(x, y);
     }
 
-    public static float[][] sum(float[][] x, Axis axis) {
+    public static double[][] sum(double[][] x, Axis axis) {
         return MathMatriz.sum(x, axis);
     }
 
@@ -72,7 +84,11 @@ public abstract class Math {
         return MathMatriz.dividir(x, divisor);
     }
 
-    public static float[][] transposta(float[][] x) {
+    public static double[][] transposta(double[][] x) {
         return MathMatriz.transposta(x);
+    }
+
+    public static double[][] multiplicar(double[][] x, double[][] y) {
+        return MathMatriz.multiplicar(x, y);
     }
 }
