@@ -1,41 +1,33 @@
 package br.com.mike.model.nn;
 
 import br.com.mike.enuns.Axis;
-import br.com.mike.enuns.TipoFuncoes;
-import br.com.mike.neuronio.Perceptron;
 import br.com.mike.util.Math;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 
 public class Linear {
 
-    private final int[] Y;
-    private final double[][] X;
     private double[][] pesosW1;
     private double[][] pesosW2;
     private double[][] f1;
     private double[][] z1;
-    private final Perceptron[] neuroniosEscondidos;
-    private final Perceptron[] neuroniosSaida;
+    private double[] b1;
+    private double[] b2;
+    private int neuroniosEscondidos;
+    private int neuroniosSaida;
 
-    public Linear(double[][] x, int[] y) {
-        X = x;
-        Y = y;
-        neuroniosEscondidos = new Perceptron[10];
-        neuroniosSaida = new Perceptron[2];
-        iniciarPesos(x[0].length, neuroniosEscondidos.length, neuroniosSaida.length);
-        iniciarPerceptrons(new TipoFuncoes[]{TipoFuncoes.TANH, TipoFuncoes.EXP});
+    public Linear() {
+        neuroniosSaida = 2;
+        neuroniosEscondidos = 10;
+        b1 = new double[neuroniosEscondidos];
+        b2 = new double[neuroniosSaida];
     }
 
-    public Linear(double[][] x, int[] y, int neuroniosEscondidos, int neuroniosSaida) {
-        X = x;
-        Y = y;
-        this.neuroniosEscondidos = new Perceptron[neuroniosEscondidos];
-        this.neuroniosSaida = new Perceptron[neuroniosSaida];
-        iniciarPesos(x[0].length, neuroniosEscondidos, neuroniosSaida);
-        iniciarPerceptrons(new TipoFuncoes[]{TipoFuncoes.TANH, TipoFuncoes.EXP});
+    public Linear(int neuroniosEscondidos, int neuroniosSaida) {
+        this.neuroniosEscondidos = neuroniosEscondidos;
+        this.neuroniosSaida = neuroniosSaida;
+        b1 = new double[neuroniosEscondidos];
+        b2 = new double[neuroniosSaida];
     }
 
     public int predict(double[][] X) {
@@ -54,74 +46,86 @@ public class Linear {
     }
 
     public int predict(double[][] X, int y) {
-        double[][] outputs = forward(X);
         int index = 0;
-        for (int j = 0; j < outputs.length; j++) {
+        for (int j = 0; j < X.length; j++) {
             double maxValue = Double.MIN_VALUE;
-            for (int k = 0; k < outputs[0].length; k++) {
-                if (outputs[j][k] > maxValue) {
-                    maxValue = outputs[j][k];
+            for (int k = 0; k < X[0].length; k++) {
+                if (X[j][k] > maxValue) {
+                    maxValue = X[j][k];
                     index = k;
                 }
             }
         }
-        return index == y ? 1 : index;
+        return index == y ? 1 : 0;
     }
 
-    public void fit(int epochs, double learningRate) {
-        for (int i = 1; i <= epochs; i++) {
+    public void fit(final double[][] X, final int[] Y, int epochs, double learningRate) {
+        int corretos = 0;
+        int tamanho = 0;
+        double losss = 0;
+        int cont = 0;
+        int div = 1;
+        iniciarPesos(X[0].length, neuroniosEscondidos, neuroniosSaida);
+        for (int i = 1; i <= epochs; i++, cont++, div = 2) {
             double[][] outputs = forward(X);
-            double loss = loss(outputs);
-            backpropagation(outputs, learningRate);
             int correct = 0;
             for (int j = 0; j < outputs.length; j++) {
                 double[][] values = new double[1][outputs[0].length];
                 values[0] = outputs[j];
                 correct += predict(values, Y[j]);
             }
-            double accuracy = (correct) / (Y.length);
-
-            if (i % (10) == 0) {
-                System.out.println("Epoch: " + i + "/ " + epochs + " accuracy: " + accuracy + " loss: " + loss);
+            double loss = loss(outputs, Y);
+            backpropagation(outputs, learningRate, X, Y);
+            corretos = (correct + corretos) / div;
+            tamanho = (tamanho + Y.length) / div;
+            losss = (losss + loss) / div;
+            if (i % (epochs / 10) == 0) {
+                double accuracy = (double) (corretos) / (tamanho);
+                System.out.println("Epoch: " + i + "/ " + epochs + " accuracy: " + accuracy + " loss: " + losss);
+                corretos = 0;
+                tamanho = 0;
+                losss = 0;
+                cont = 0;
             }
         }
     }
 
     public double[][] forward(double[][] x) {
-        z1 = sumWithBias(Math.dot(x, pesosW1), neuroniosEscondidos);
-        f1 = setF(z1, neuroniosEscondidos);
-        double[][] f2 = sumWithBias(Math.dot(f1, pesosW2), neuroniosSaida);
-        f2 = setF(f2, neuroniosSaida);
+        z1 = sumWithBias(Math.dot(x, pesosW1), b1);
+        f1 = new double[z1.length][z1[0].length];
+        for (int i = 0; i < z1.length; i++) {
+            for (int j = 0; j < z1[0].length; j++) {
+                f1[i][j] = Math.tanh(z1[i][j]);
+            }
+        }
+        double[][] f2 = Math.exp(sumWithBias(Math.dot(f1, pesosW2), b2));
         return Math.dividir(f2, Math.sum(f2, Axis.COL));
     }
 
-    public double loss(double[][] softMax) {
+    public double loss(double[][] softMax, final int[] Y) {
         double predictions = 0;
         for (int i = 0; i < softMax.length; i++) {
-            double prediction = softMax[i][(int) Y[i]];
+            double prediction = softMax[i][Y[i]];
             predictions -= Math.log(prediction);
         }
         return predictions / Y.length;
     }
 
-    public void backpropagation(double[][] softMax, double learningRate) {
-        double[][] delta2 = Arrays.copyOf(softMax, softMax.length);
+    public void backpropagation(double[][] softMax, double learningRate, final double[][] X, final int[] Y) {
         for (int i = 0; i < softMax.length; i++) {
-            int j = (int) Y[i];
-            delta2[i][j] = -Math.max(1, j) * (1 - softMax[i][(int) j]);
+            int j = Y[i];
+            softMax[i][j] = -Math.max(1, j) * ((double) 1 - softMax[i][j]);
         }
         for (int i = 0; i < z1.length; i++) {
             for (int j = 0; j < z1[0].length; j++) {
                 z1[i][j] = 1 - Math.pow(Math.tanh(z1[i][j]), 2);
             }
         }
-        double[][] b2 = Math.sum(delta2, Axis.LIN);
-        double[][] delta1 = Math.multiplicar(Math.dot(delta2, Math.transposta(pesosW2)), z1);
-        double[][] b1 = Math.sum(delta1, Axis.LIN);
-        pesosW2 = Math.sum(pesosW2, setPesos(Math.dot(Math.transposta(f1), delta2), learningRate));
+        double[][] delta1 = Math.multiplicar(Math.dot(softMax, Math.transposta(pesosW2)), z1);
+        pesosW2 = Math.sum(pesosW2, setPesos(Math.dot(Math.transposta(f1), softMax), learningRate));
         pesosW1 = Math.sum(pesosW1, setPesos(Math.dot(Math.transposta(X), delta1), learningRate));
-        setBias(b2, neuroniosSaida, learningRate);
-        setBias(b1, neuroniosEscondidos, learningRate);
+        setBias(Math.sum(softMax, Axis.LIN), this.b2, learningRate);
+        setBias(Math.sum(delta1, Axis.LIN), this.b1, learningRate);
     }
 
     private double[][] setPesos(double[][] pesos, double learningRate) {
@@ -133,32 +137,21 @@ public class Linear {
         return pesos;
     }
 
-    private void setBias(double[][] bias, Perceptron[] neuronios, double learningRate) {
+    private void setBias(double[][] bias, double[] b, double learningRate) {
         for (int i = 0; i < bias.length; i++) {
             for (int j = 0; j < bias[0].length; j++) {
-                Perceptron perceptron = neuronios[j];
-                perceptron.setBias(perceptron.getBias() + (-(bias[i][j] * learningRate)));
+                b[j] += (-(bias[i][j] * learningRate));
             }
         }
     }
 
-    private double[][] sumWithBias(double[][] z, Perceptron[] neuronios) {
+    private double[][] sumWithBias(double[][] z, double[] bias) {
         for (int i = 0; i < z.length; i++) {
             for (int j = 0; j < z[0].length; j++) {
-                z[i][j] += neuronios[j].getBias();
+                z[i][j] += bias[j];
             }
         }
         return z;
-    }
-
-    private double[][] setF(double[][] f, Perceptron[] neuronios) {
-        double[][] res = new double[f.length][f[0].length];
-        for (int i = 0; i < f.length; i++) {
-            for (int j = 0; j < f[0].length; j++) {
-                res[i][j] = neuronios[j].funcaoAtivacao(f[i][j]);
-            }
-        }
-        return res;
     }
 
 
@@ -172,22 +165,9 @@ public class Linear {
         Random random = new Random();
         for (int i = 0; i < x; i++) {
             for (int j = 0; j < y; j++) {
-                pesos[i][j] = (double) (random.nextDouble() / Math.sqrt(x));
+                pesos[i][j] = (random.nextDouble() / Math.sqrt(x));
             }
         }
         return pesos;
-    }
-
-    private void iniciarPerceptrons(TipoFuncoes[] tipoFuncoes) {
-        List<Perceptron[]> perceptrons = List.of(neuroniosEscondidos, neuroniosSaida);
-        for (int i = 0; i < tipoFuncoes.length; i++) {
-            iniciarPerceptrons(perceptrons.get(i).length, tipoFuncoes[i], perceptrons.get(i));
-        }
-    }
-
-    private void iniciarPerceptrons(int length, TipoFuncoes tipoFuncoes, Perceptron[] perceptrons) {
-        for (int i = 0; i < length; i++) {
-            perceptrons[i] = new Perceptron(tipoFuncoes);
-        }
     }
 }

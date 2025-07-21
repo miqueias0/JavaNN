@@ -12,7 +12,7 @@ public class Main {
         double[][] x = new double[1000][2];
         int[] y = new int[x.length];
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-                Objects.requireNonNull(Main.class.getClassLoader().getResourceAsStream("text (1).txt")),
+                Objects.requireNonNull(Main.class.getClassLoader().getResourceAsStream("text (2).txt")),
                 StandardCharsets.UTF_8))) {
             String line = reader.readLine();
             int cont = 0;
@@ -27,13 +27,12 @@ public class Main {
         } catch (Exception e) {
         }
         long startTime = System.currentTimeMillis();
-        Linear linear = new Linear(x, y, 64<<1, 2);
-//        System.out.println("loss: " + linear.loss(linear.forward(x)));
-//        System.out.println("backpropagation: " + linear.backpropagation(linear.forward(x), 0.002F));
-        linear.fit(10000, 0.001);
-        double[][] X = new double[500][2];
+        Linear linear = new Linear(512, 3);
+        linear.fit(x, y, 10000, 0.000001);
+        double[][] X = new double[1000000 - x.length][2];
+        y = new int[X.length];
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-                Objects.requireNonNull(Main.class.getClassLoader().getResourceAsStream("text (1).txt")),
+                Objects.requireNonNull(Main.class.getClassLoader().getResourceAsStream("text (2).txt")),
                 StandardCharsets.UTF_8))) {
             String line = reader.readLine();
             for (int i = 0; i < x.length && line != null; i++, line = reader.readLine()) {
@@ -56,7 +55,7 @@ public class Main {
             values[0] = X[i];
             correct += linear.predict(values) == y[i] ? 1 : 0;
         }
-        System.out.println("correct: " + correct + " / " + X.length);
+        System.out.println("correct: " + correct + " / " + X.length + ", percent: " + ((double) correct * 100 / X.length));
         System.out.println("time: " + (System.currentTimeMillis() - startTime) + "ms");
     }
 }

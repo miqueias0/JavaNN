@@ -13,6 +13,9 @@ public abstract class Math {
     }
 
     public static double log(double x) {
+        if (x < 0) {
+            return 0;
+        }
         return (double) java.lang.Math.log(x);
     }
 
