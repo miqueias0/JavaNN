@@ -4,9 +4,7 @@ import br.com.mike.util.GeradorSubWord;
 import br.com.mike.util.Math;
 import br.com.mike.util.Vocabulario;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 public class FastText {
@@ -148,24 +146,11 @@ public class FastText {
 
     public void testeSimilaridade(String... words) {
         String word = words[0];
-        Map<String, Double> maisCompativeis = new HashMap<>();
         for (int i = 1; i < words.length; i++) {
-            double similariedade = similaridade(word, words[i]);
-            if (maisCompativeis.size() < 5) {
-                maisCompativeis.put(words[i], similariedade);
-            } else if (maisCompativeis.values().stream().anyMatch(v -> v < similariedade)) {
-                for (Map.Entry<String, Double> entry : maisCompativeis.entrySet()) {
-                    if (entry.getValue() < similariedade) {
-                        maisCompativeis.remove(entry.getKey());
-                        maisCompativeis.put(words[i], similariedade);
-                        break;
-                    }
-                }
-            }
+            System.out.println("Similaridade " + word + " e " + words[i] + ": " + similaridade(word, words[i]));
+            word = words[i];
         }
-        for (Map.Entry<String, Double> entry : maisCompativeis.entrySet()) {
-            System.out.println("Similaridade " + word + " e " + entry.getKey() + ": " + entry.getValue());
-        }
+
     }
 
     private double similaridade(String word1, String word2) {
