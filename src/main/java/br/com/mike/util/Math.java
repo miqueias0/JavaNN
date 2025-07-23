@@ -23,6 +23,14 @@ public abstract class Math {
         return java.lang.Math.max(x, y);
     }
 
+    public static int abs(int x) {
+        return java.lang.Math.abs(x);
+    }
+
+    public static int max(int x, int y) {
+        return java.lang.Math.max(x, y);
+    }
+
     public static double min(double x, double y) {
         return java.lang.Math.min(x, y);
     }
@@ -93,5 +101,54 @@ public abstract class Math {
 
     public static double[][] multiplicar(double[][] x, double[][] y) {
         return MathMatriz.multiplicar(x, y);
+    }
+
+    public static double dot(double[] x, double[] y) {
+        return MathArray.dot(x, y);
+    }
+
+    public static double[] sum(double[] x, double[] y) {
+        return MathArray.sum(x, y);
+    }
+
+    public static double[] escalar(double[] x, double y) {
+        return MathArray.escalar(x, y);
+    }
+
+    public static double[] exp(double[] x) {
+        return MathArray.exp(x);
+    }
+
+    public static double[] dividir(double[] x, double divisor) {
+        return MathArray.dividir(x, divisor);
+    }
+
+    public static double[] sub(double[] x, double y) {
+        return MathArray.sub(x, y);
+    }
+
+    public static double[] sub(double[] x, double[] y) {
+        return MathArray.sub(x, y);
+    }
+
+    public static double max(double[] x) {
+        return MathArray.max(x);
+    }
+
+    public static double sum(double[] x) {
+        return MathArray.sum(x);
+    }
+
+    public static double[] softmax(double[] x) {
+        double[] res = exp(sub(x, max(x)));
+        return dividir(res, sum(res));
+    }
+
+    public static double[] log(double[] x) {
+        return MathArray.log(x);
+    }
+
+    public static double[] multiplicar(double[] x, double[] y) {
+        return MathArray.multiplicar(x, y);
     }
 }
